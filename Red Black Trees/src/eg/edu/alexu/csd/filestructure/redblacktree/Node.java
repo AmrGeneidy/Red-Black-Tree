@@ -1,6 +1,6 @@
 package eg.edu.alexu.csd.filestructure.redblacktree;
 
-public class Node <T extends Comparable<T>, V extends Comparable<V>> implements INode<T, V> {
+public class Node <T extends Comparable<T>, V> implements INode<T, V> {
 
 	private INode<T, V> parent;
 	private INode<T, V> leftChild;

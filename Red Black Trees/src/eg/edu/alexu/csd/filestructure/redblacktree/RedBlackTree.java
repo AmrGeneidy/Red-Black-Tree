@@ -1,6 +1,6 @@
 package eg.edu.alexu.csd.filestructure.redblacktree;
 
-public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> implements IRedBlackTree<T, V> {
+public class RedBlackTree <T extends Comparable<T>, V> implements IRedBlackTree<T, V> {
 
 	private INode<T, V> root;
 	private INode<T, V> nill;
@@ -20,13 +20,13 @@ public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> imp
 	@Override
 	public boolean isEmpty() {
 		// TODO Auto-generated method stub
-		return this.root.getParent() == nill;
+		return this.root == this.nill;
 	}
 
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
-		this.root.setParent(nill);;
+		this.root = this.nill;
 	}
 
 	@Override
@@ -48,8 +48,33 @@ public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> imp
 	@Override
 	public void insert(T key, V value) {
 		// TODO Auto-generated method stub
-		
-		
+		//initialize inserted node
+		INode<T, V> z = new Node<>();
+		z.setValue(value);
+		z.setKey(key);
+		z.setLeftChild(this.nill);
+		z.setRightChild(this.nill);
+		//insert z in its place
+		INode<T, V> y = this.nill;
+		INode<T, V> x = this.root;
+		while(x != this.nill) {
+			y = x;
+			if(z.getKey().compareTo(x.getKey()) < 0) {
+				x = x.getLeftChild();
+			}
+			else {
+				x = x.getRightChild();
+			}
+		}
+		z.setParent(y);
+		if(z.getKey().compareTo(y.getKey()) < 0) {
+			y.setLeftChild(z);
+		}
+		else {
+			y.setRightChild(z);
+		}
+		//fix tree after insertion
+		fixTree(z);
 	}
 	
 
@@ -59,7 +84,8 @@ public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> imp
 		return false;
 	}
 	
-	public void rotateLeft(INode<T, V> x) {
+	private void rotateLeft(INode<T, V> x) {
+		// TODO Auto-generated method stub
 		INode<T, V> y = x.getRightChild();
 		x.setRightChild(y.getLeftChild());
 		if(y.getLeftChild() != this.nill) {
@@ -79,7 +105,8 @@ public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> imp
 		x.setParent(y);
 	}
 	
-	public void rotateRight(INode<T, V> y) {
+	private void rotateRight(INode<T, V> y) {
+		// TODO Auto-generated method stub
 		INode<T, V> x = y.getLeftChild();
 		y.setLeftChild(x.getRightChild());
 		if(x.getRightChild() != this.nill) {
@@ -97,5 +124,10 @@ public class RedBlackTree <T extends Comparable<T>, V extends Comparable<V>> imp
 		}
 		x.setRightChild(y);
 		y.setParent(x);
+	}
+
+	private void fixTree(INode<T, V> z) {
+		// TODO Auto-generated method stub
+		
 	}
 }
