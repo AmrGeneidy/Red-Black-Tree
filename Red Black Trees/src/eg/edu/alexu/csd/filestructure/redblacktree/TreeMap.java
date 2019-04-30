@@ -39,7 +39,7 @@ public class TreeMap <T extends Comparable<T>, V> implements ITreeMap<T, V> {
 	    }
 		@Override
 		public boolean equals(Object o) {
-			if(((Entry<?, ?>) o).getKey().equals(this.getKey()) && ((Entry<?, ?>) o).equals(this.getValue())) {
+			if((this.getKey().equals(((Entry<?, ?>) o).getKey())) && (this.getValue()).equals(((Entry<?, ?>) o).getValue())) {
 				return true;
 			}
 	      return false;
