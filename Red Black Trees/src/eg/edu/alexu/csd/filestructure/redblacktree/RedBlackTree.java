@@ -22,6 +22,7 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
         // TODO Auto-generated method stub
         return this.root;
     }
+    
 
     @Override
     public boolean isEmpty() {
