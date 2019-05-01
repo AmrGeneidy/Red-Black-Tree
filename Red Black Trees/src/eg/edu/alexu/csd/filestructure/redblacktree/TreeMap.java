@@ -9,342 +9,299 @@ import java.util.Set;
 
 import javax.management.RuntimeErrorException;
 
-public class TreeMap <T extends Comparable<T>, V> implements ITreeMap<T, V> {
-	final class MyEntry<K, A> implements Entry<T, V> {
-	    private final T key;
-	    private V value;
-	    
+public class TreeMap<T extends Comparable<T>, V> implements ITreeMap<T, V> {
+    final class MyEntry<K, A> implements Entry<T, V> {
+        private final T key;
+        private V value;
 
-	    public MyEntry(T key, V value) {
-	        this.key = key;
-	        this.value = value;
-	    }
+        MyEntry(T key, V value) {
+            this.key = key;
+            this.value = value;
+        }
 
-	    @Override
-	    public T getKey() {
-	        return key;
-	    }
+        @Override
+        public T getKey() {
+            return key;
+        }
 
-	    @Override
-	    public V getValue() {
-	        return value;
-	    }
+        @Override
+        public V getValue() {
+            return value;
+        }
 
-		@Override
-		public V setValue(V value) {
-	        V old = this.value;
-	        this.value = value;
-	        return old;
-	    }
-		@Override
-		public boolean equals(Object o) {
-			if((this.getKey().equals(((Entry<?, ?>) o).getKey())) && (this.getValue()).equals(((Entry<?, ?>) o).getValue())) {
-				return true;
-			}
-	      return false;
-		}
-	       
-	}
-	private IRedBlackTree<T, V> tree;
-	private int size = 0;
-	private Set<Entry<T, V>> set;
-	
-	public TreeMap() {
-		// TODO Auto-generated constructor stub
-		tree = new RedBlackTree<T, V>();
-		set = new LinkedHashSet<>();
-	}
-	@Override
-	public Entry<T, V> ceilingEntry(T key) {
-		// TODO Auto-generated method stub
-		INode<T, V> x = tree.getRoot();
-		INode<T, V> y = tree.getRoot();
-		if(x.getKey() == null) throw new RuntimeErrorException(null);
-		Entry<T, V> entry;
-		while(x.getKey() != null && x.getKey().compareTo(key) != 0) {
-			y = x;
-			if(x.getKey().compareTo(key) > 0) {
-				x = x.getLeftChild();
-			}
-			else {
-				x = x.getRightChild();
-			}
-		}
-		if(x.getKey().compareTo(key) == 0) {
-			entry = new MyEntry<T, V>(x.getKey(), x.getValue());
-		}
-		else if(x.getKey() == null) {
-			if(key.compareTo(y.getKey()) < 0) {
-				x = y;
-			}
-			else {
-				x = getSuccessor(y);
-			}
-		}
-		entry = new MyEntry<T, V>(x.getKey(), x.getValue());
-		return entry;
-	}
+        @Override
+        public V setValue(V value) {
+            V old = this.value;
+            this.value = value;
+            return old;
+        }
 
-	
-	@Override
-	public T ceilingKey(T key) {
-		// TODO Auto-generated method stub
-		return ceilingEntry(key) == null ? null : ceilingEntry(key).getKey();
-	}
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof ITreeMap) && (this.getKey().equals(((Entry<?, ?>) o).getKey())) && this.getValue().equals(((Entry<?, ?>) o).getValue());
+        }
 
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
-		tree = new RedBlackTree<T, V>();
-		size = 0;
-	}
+    }
 
-	@Override
-	public boolean containsKey(T key) {
-		// TODO Auto-generated method stub
-		if(key == null) throw new RuntimeErrorException(null);
-		return tree.contains(key);
-	}
+    private IRedBlackTree<T, V> tree;
+    private int size = 0;
+    private Set<Entry<T, V>> set;
 
-	@Override
-	public boolean containsValue(V value) {
-		// TODO Auto-generated method stub
-		Collection<V> values = values();
-		if(value == null) throw new RuntimeErrorException(null);
-		return values.contains(value);
-	}
+    TreeMap() {
+        tree = new RedBlackTree<>();
+        set = new LinkedHashSet<>();
+    }
 
-	@Override
-	public Set<Entry<T, V>> entrySet() {
-		// TODO Auto-generated method stub
-		set.clear();
-		if(tree.getRoot().isNull()) return set;
-		return inorderSet(tree.getRoot());
-	}
+    @Override
+    public Entry<T, V> ceilingEntry(T key) {
+        INode<T, V> runner = tree.getRoot();
+        INode<T, V> follower = tree.getRoot();
+        if (runner.getKey() == null) throw new RuntimeErrorException(null);
+        Entry<T, V> entry;
+        while (runner.getKey() != null && runner.getKey().compareTo(key) != 0) {
+            follower = runner;
+            if (runner.getKey().compareTo(key) > 0) {
+                runner = runner.getLeftChild();
+            } else {
+                runner = runner.getRightChild();
+            }
+        }
+        if (runner.getKey() == null) {
+            if (key.compareTo(follower.getKey()) < 0) {
+                runner = follower;
+            } else {
+                runner = getSuccessor(follower);
+            }
+        }
+        entry = new MyEntry<T, V>(runner.getKey(), runner.getValue());
+        return entry;
+    }
 
-	
-	@Override
-	public Entry<T, V> firstEntry() {
-		// TODO Auto-generated method stub
-		INode<T, V> x = tree.getRoot();
-		INode<T, V> y = tree.getRoot();
-		if(x.isNull()) return null;
-		while(!x.isNull()) {
-			y = x;
-			x = x.getLeftChild();
-		}
-		Entry<T, V> entry = new MyEntry<T, V>(y.getKey(), y.getValue());
-		return entry;
-	}
+    @Override
+    public T ceilingKey(T key) {
+        return ceilingEntry(key) == null ? null : ceilingEntry(key).getKey();
+    }
 
-	@Override
-	public T firstKey() {
-		// TODO Auto-generated method stub
-		if (firstEntry() == null) return null;
-		return firstEntry().getKey();
-	}
+    @Override
+    public void clear() {
+        tree = new RedBlackTree<>();
+        size = 0;
+    }
 
-	@Override
-	public Entry<T, V> floorEntry(T key) {
-		// TODO Auto-generated method stub
-		if(key == null) throw new RuntimeErrorException(null);
-		INode<T, V> x = tree.getRoot();
-		INode<T, V> y = tree.getRoot();
-		Map.Entry<T, V> entry;
-		while(x.getKey() != null && x.getKey().compareTo(key) != 0) {
-			y = x;
-			if(x.getKey().compareTo(key) > 0) {
-				x = x.getLeftChild();
-			}
-			else {
-				x = x.getRightChild();
-			}
-		}
-		if(x.getKey() != null && x.getKey().compareTo(key) == 0) {
-			entry = new MyEntry<T, V>(x.getKey(), x.getValue());
-		}
-		else if(x.getKey() == null) {
-			if(y.getKey().compareTo(key) > 0) {
-				x = predecessor(y);
-			}
-			else {
-				x = y;
-			}
-		}
-		entry = new MyEntry<T, V>(x.getKey(), x.getValue());
-		return entry;
-	}
+    @Override
+    public boolean containsKey(T key) {
+        if (key == null) throw new RuntimeErrorException(null);
+        return tree.contains(key);
+    }
 
-	
-	@Override
-	public T floorKey(T key) {
-		// TODO Auto-generated method stub
-		return floorEntry(key).getKey();
-	}
+    @Override
+    public boolean containsValue(V value) {
+        if (value == null) throw new RuntimeErrorException(null);
+        Collection<V> values = values();
+        return values.contains(value);
+    }
 
-	@Override
-	public V get(T key) {
-		// TODO Auto-generated method stub
-		return tree.search(key);
-	}
+    @Override
+    public Set<Entry<T, V>> entrySet() {
+        set.clear();
+        if (tree.getRoot().isNull()) return set;
+        return inorderSet(tree.getRoot());
+    }
 
-	@Override
-	public ArrayList<Entry<T, V>> headMap(T toKey) {
-		// TODO Auto-generated method stub
-		ArrayList<Entry<T, V>> result = new ArrayList<>();
-		Set<Entry<T, V>> set = entrySet();
-		for(Entry<T, V> e : set) {
-			if (e.getKey().compareTo(toKey) < 0) result.add(e);
-		}
-		return result;
-	}
+    @Override
+    public Entry<T, V> firstEntry() {
+        INode<T, V> runner = tree.getRoot();
+        INode<T, V> follower = tree.getRoot();
+        if (runner.isNull()) return null;
+        while (!runner.isNull()) {
+            follower = runner;
+            runner = runner.getLeftChild();
+        }
+        return new MyEntry<T, V>(follower.getKey(), follower.getValue());
+    }
 
-	@Override
-	public ArrayList<Entry<T, V>> headMap(T toKey, boolean inclusive) {
-		// TODO Auto-generated method stub
-		ArrayList<Entry<T, V>> result = new ArrayList<>();
-		Set<Entry<T, V>> set = entrySet();
-		for(Entry<T, V> e : set) {
-			if (e.getKey().compareTo(toKey) < 0 || (e.getKey().compareTo(toKey) == 0 && inclusive)) result.add(e);
-		}
-		return result;
-	}
+    @Override
+    public T firstKey() {
+        Entry<T, V> firstEntry = firstEntry();
+        return (firstEntry == null ? null : firstEntry.getKey());
+    }
 
-	@Override
-	public Set<T> keySet() {
-		// TODO Auto-generated method stub
-		Set<Entry<T, V>> set = entrySet();
-		Set<T> keys = new LinkedHashSet<>();
-		for(Entry<T, V> e : set) {
-			keys.add(e.getKey());
-		}
-		return keys;
-	}
+    @Override
+    public Entry<T, V> floorEntry(T key) {
+        if (key == null) throw new RuntimeErrorException(null);
+        INode<T, V> runner = tree.getRoot();
+        INode<T, V> follower = tree.getRoot();
+        Map.Entry<T, V> entry;
+        while (runner.getKey() != null && runner.getKey().compareTo(key) != 0) {
+            follower = runner;
+            if (runner.getKey().compareTo(key) > 0) {
+                runner = runner.getLeftChild();
+            } else {
+                runner = runner.getRightChild();
+            }
+        }
+        if (runner.getKey() == null) {
+            if (follower.getKey().compareTo(key) > 0) {
+                runner = predecessor(follower);
+            } else {
+                runner = follower;
+            }
+        }
+        entry = new MyEntry<T, V>(runner.getKey(), runner.getValue());
+        return entry;
+    }
 
-	@Override
-	public Entry<T, V> lastEntry() {
-		// TODO Auto-generated method stub
-		INode<T, V> x = tree.getRoot();
-		INode<T, V> y = tree.getRoot();
-		if(x.isNull()) return null;
-		while(!x.isNull()) {
-			y = x;
-			x = x.getRightChild();
-		}
-		Entry<T, V> entry = new MyEntry<T, V>(y.getKey(), y.getValue());
-		return entry;
-	}
+    @Override
+    public T floorKey(T key) {
+        return floorEntry(key).getKey();
+    }
 
-	@Override
-	public T lastKey() {
-		// TODO Auto-generated method stub
-		entrySet();
-		if(lastEntry() == null) return null;
-		return lastEntry().getKey();
-	}
+    @Override
+    public V get(T key) {
+        return tree.search(key);
+    }
 
-	@Override
-	public Entry<T, V> pollFirstEntry() {
-		// TODO Auto-generated method stub
-		if(firstEntry() == null) return null;
-		Entry<T, V> firstEntry = firstEntry();
-		remove(firstEntry.getKey());
-		return firstEntry;
-	}
+    @Override
+    public ArrayList<Entry<T, V>> headMap(T toKey) {
+        ArrayList<Entry<T, V>> result = new ArrayList<>();
+        Set<Entry<T, V>> set = entrySet();
+        for (Entry<T, V> e : set) {
+            if (e.getKey().compareTo(toKey) < 0) result.add(e);
+        }
+        return result;
+    }
 
-	@Override
-	public Entry<T, V> pollLastEntry() {
-		// TODO Auto-generated method stub
-		if(lastEntry() == null) return null;
-		Entry<T, V> lastEntry = lastEntry();
-		remove(lastEntry.getKey());
-		return lastEntry;
-	}
+    @Override
+    public ArrayList<Entry<T, V>> headMap(T toKey, boolean inclusive) {
+        ArrayList<Entry<T, V>> result = new ArrayList<>();
+        Set<Entry<T, V>> set = entrySet();
+        for (Entry<T, V> e : set) {
+            if (e.getKey().compareTo(toKey) < 0 || (e.getKey().compareTo(toKey) == 0 && inclusive)) result.add(e);
+        }
+        return result;
+    }
 
-	@Override
-	public void put(T key, V value) {
-		// TODO Auto-generated method stub
-		if(containsKey(key)) {
-			remove(key);
-		}
-		tree.insert(key, value);
-		size++;
-	}
+    @Override
+    public Set<T> keySet() {
+        Set<Entry<T, V>> set = entrySet();
+        Set<T> keys = new LinkedHashSet<>();
+        for (Entry<T, V> e : set) {
+            keys.add(e.getKey());
+        }
+        return keys;
+    }
 
-	@Override
-	public void putAll(Map<T, V> map) {
-		// TODO Auto-generated method stub
-		if (map == null) throw new RuntimeErrorException(null);
-		size += map.size();
-		for(Entry<T, V> entry : map.entrySet()) {
-			tree.insert(entry.getKey(), entry.getValue());
-		}
-	}
+    @Override
+    public Entry<T, V> lastEntry() {
+        INode<T, V> runner = tree.getRoot();
+        INode<T, V> follower = tree.getRoot();
+        if (runner.isNull()) return null;
+        while (!runner.isNull()) {
+            follower = runner;
+            runner = runner.getRightChild();
+        }
+        return new MyEntry<T, V>(follower.getKey(), follower.getValue());
+    }
 
-	@Override
-	public boolean remove(T key) {
-		// TODO Auto-generated method stub
-		if(key == null) throw new RuntimeErrorException(null);
-		size--;
-		return tree.delete(key);
-	}
+    @Override
+    public T lastKey() {
+        Entry<T, V> lastEntry = lastEntry();
+        return (lastEntry == null ? null : lastEntry.getKey());
+    }
 
-	@Override
-	public int size() {
-		// TODO Auto-generated method stub
-		return size;
-	}
+    @Override
+    public Entry<T, V> pollFirstEntry() {
+        Entry<T, V> firstEntry = firstEntry();
+        if (firstEntry == null) return firstEntry;
+        remove(firstEntry.getKey());
+        return firstEntry;
+    }
 
-	@Override
-	public Collection<V> values() {
-		// TODO Auto-generated method stub
-		Set<Entry<T, V>> set = entrySet();
-		Collection<V> values = new LinkedHashSet<>();
-		for(Entry<T, V> e : set) {
-			values.add(e.getValue());
-		}
-		return values;
-	}
-	private INode<T, V> getSuccessor(INode<T, V> x) {
-		// TODO Auto-generated method stub
-		if(x.getRightChild().getKey() != null) {
-			while(x.getLeftChild().getKey() != null) {
-				x = x.getLeftChild();
-			}
-			return x;
-		}
-		INode<T, V> y = x.getParent();
-		while(y.getKey() != null && x == y.getRightChild()) {
-			x = y;
-			y = x.getParent();
-		}
-		return y;
-	}
-	
-	private INode<T, V> predecessor(INode<T, V> x) {
-		// TODO Auto-generated method stub
-		if(x.getLeftChild().getKey() != null) {
-			x = x.getLeftChild();
-			while(x.getRightChild() != null) {
-				x = x.getRightChild();
-			}
-			return x;
-		}
-		INode<T, V> y = x.getParent();
-		while(y.getKey() != null && x == y.getLeftChild()) {
-			x = y;
-			y = x.getParent();
-		}
-		return y;
-}
-	
-	private Set<Entry<T, V>> inorderSet(INode<T, V> node) {
-		// TODO Auto-generated method stub
-		if (node.isNull()) return set;
-		set = inorderSet(node.getLeftChild());
-		Entry<T, V> entry = new MyEntry<T, V>(node.getKey(), node.getValue());
-		set.add(entry);
-		set = inorderSet(node.getRightChild());
-		return set;
-	}
+    @Override
+    public Entry<T, V> pollLastEntry() {
+        Entry<T, V> lastEntry = lastEntry();
+        if (lastEntry == null) return lastEntry;
+        remove(lastEntry.getKey());
+        return lastEntry;
+    }
+
+    @Override
+    public void put(T key, V value) {
+        if (!containsKey(key)) size++;
+        tree.insert(key, value);
+    }
+
+    @Override
+    public void putAll(Map<T, V> map) {
+        if (map == null) throw new RuntimeErrorException(null);
+        size += map.size();
+        for (Entry<T, V> entry : map.entrySet()) {
+            tree.insert(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @Override
+    public boolean remove(T key) {
+        if (key == null) throw new RuntimeErrorException(null);
+        boolean found = tree.delete(key);
+        if (found) size--;
+        return found;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @Override
+    public Collection<V> values() {
+        Set<Entry<T, V>> set = entrySet();
+        Collection<V> values = new LinkedHashSet<>();
+        for (Entry<T, V> e : set) {
+            values.add(e.getValue());
+        }
+        return values;
+    }
+
+    private INode<T, V> getSuccessor(INode<T, V> n) {
+        INode<T, V> node = n;
+        if (node.getRightChild().getKey() != null) {
+            while (node.getLeftChild().getKey() != null) {
+                node = node.getLeftChild();
+            }
+            return node;
+        }
+        INode<T, V> y = node.getParent();
+        while (y.getKey() != null && node == y.getRightChild()) {
+            node = y;
+            y = node.getParent();
+        }
+        return y;
+    }
+
+    private INode<T, V> predecessor(INode<T, V> n) {
+        INode<T, V> node = n;
+        if (node.getLeftChild().getKey() != null) {
+            node = node.getLeftChild();
+            while (node.getRightChild() != null) {
+                node = node.getRightChild();
+            }
+            return node;
+        }
+        INode<T, V> y = node.getParent();
+        while (y.getKey() != null && node == y.getLeftChild()) {
+            node = y;
+            y = node.getParent();
+        }
+        return y;
+    }
+
+    private Set<Entry<T, V>> inorderSet(INode<T, V> node) {
+        if (node.isNull()) return set;
+        set = inorderSet(node.getLeftChild());
+        Entry<T, V> entry = new MyEntry<T, V>(node.getKey(), node.getValue());
+        set.add(entry);
+        set = inorderSet(node.getRightChild());
+        return set;
+    }
 }

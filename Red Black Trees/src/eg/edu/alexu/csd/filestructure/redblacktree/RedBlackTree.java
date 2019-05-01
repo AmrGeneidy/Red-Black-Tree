@@ -7,7 +7,7 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
     private INode<T, V> root;
     private INode<T, V> nil;
 
-    public RedBlackTree() {
+    RedBlackTree() {
         // TODO Auto-generated constructor stub
         nil = new Node<>();
         nil.setColor(INode.BLACK);
@@ -22,7 +22,6 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
         // TODO Auto-generated method stub
         return this.root;
     }
-    
 
     @Override
     public boolean isEmpty() {
@@ -72,10 +71,10 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
             return;
         }
         //insert z in its place
-        INode<T, V> y = this.nil;
+        INode<T, V> follower = this.nil;
         INode<T, V> x = this.root;
         while (x != this.nil && x.getKey().compareTo(key) != 0) {
-            y = x;
+            follower = x;
             if (z.getKey().compareTo(x.getKey()) < 0) {
                 x = x.getLeftChild();
             } else {
@@ -86,11 +85,11 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
             x.setValue(value);
             return;
         }
-        z.setParent(y);
-        if (z.getKey().compareTo(y.getKey()) < 0) {
-            y.setLeftChild(z);
+        z.setParent(follower);
+        if (z.getKey().compareTo(follower.getKey()) < 0) {
+            follower.setLeftChild(z);
         } else {
-            y.setRightChild(z);
+            follower.setRightChild(z);
         }
         insertionFixUp(z);
     }
@@ -194,7 +193,7 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
         x.setColor(INode.BLACK);
     }
 
-    void transplant(INode<T, V> target, INode<T, V> with) {
+    private void transplant(INode<T, V> target, INode<T, V> with) {
         if (target.getParent() == nil) root = with;
         else if (target == target.getParent().getLeftChild()) target.getParent().setLeftChild(with);
         else target.getParent().setRightChild(with);
@@ -203,32 +202,32 @@ public class RedBlackTree<T extends Comparable<T>, V> implements IRedBlackTree<T
 
     private void rotateLeft(INode<T, V> x) {
         // TODO Auto-generated method stub
-        INode<T, V> y = x.getRightChild();
-        y.setParent(x.getParent());
-        if (x == root) root = y;
+        INode<T, V> rightChild = x.getRightChild();
+        rightChild.setParent(x.getParent());
+        if (x == root) root = rightChild;
         else {
-            if (x == x.getParent().getLeftChild()) x.getParent().setLeftChild(y);
-            else x.getParent().setRightChild(y);
+            if (x == x.getParent().getLeftChild()) x.getParent().setLeftChild(rightChild);
+            else x.getParent().setRightChild(rightChild);
         }
-        x.setParent(y);
-        INode<T, V> yOrgLeft = y.getLeftChild();
-        y.setLeftChild(x);
+        x.setParent(rightChild);
+        INode<T, V> yOrgLeft = rightChild.getLeftChild();
+        rightChild.setLeftChild(x);
         x.setRightChild(yOrgLeft);
         if (yOrgLeft != nil) yOrgLeft.setParent(x);
     }
 
     private void rotateRight(INode<T, V> x) {
         // TODO Auto-generated method stub
-        INode<T, V> y = x.getLeftChild();
-        y.setParent(x.getParent());
-        if (x == root) root = y;
+        INode<T, V> leftChild = x.getLeftChild();
+        leftChild.setParent(x.getParent());
+        if (x == root) root = leftChild;
         else {
-            if (x == x.getParent().getLeftChild()) x.getParent().setLeftChild(y);
-            else x.getParent().setRightChild(y);
+            if (x == x.getParent().getLeftChild()) x.getParent().setLeftChild(leftChild);
+            else x.getParent().setRightChild(leftChild);
         }
-        x.setParent(y);
-        INode<T, V> yOrgRight = y.getRightChild();
-        y.setRightChild(x);
+        x.setParent(leftChild);
+        INode<T, V> yOrgRight = leftChild.getRightChild();
+        leftChild.setRightChild(x);
         x.setLeftChild(yOrgRight);
         if (yOrgRight != nil) yOrgRight.setParent(x);
     }
